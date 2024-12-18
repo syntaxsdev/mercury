@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: mercury
+  name: mercury-app
+  labels:
+    app: mercury-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mercury-app
+  template:
+    metadata:
+      labels:
+        app: mercury-app
+    spec:
+      containers:
+      - name: mercury-app
+        image: mercury-app:latest
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /app
+          name: mercury-app-code
+      volumes:
+      - name: mercury-app-code
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mercury-app-service
+spec:
+  selector:
+    app: mercury-app
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
