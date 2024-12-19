@@ -9,5 +9,5 @@ type Strategy struct {
 
 type StrategyOptions struct {
 	Active bool        `json:"active"`
-	Meta   interface{} `json:"meta,omitempty"` // Any data
+	Meta   interface{} `json:"meta,omitempty"` // Any dictionary data allowed here
 }

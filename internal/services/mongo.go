@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -27,10 +28,18 @@ func (s *MongoService) Insert(collection string, item interface{}) (interface{},
 
 func (s *MongoService) First(collection string, filter interface{}, result interface{}) error {
 	coll := s.Client.Database(s.DatabaseName).Collection(collection)
-	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-
+	log.Println(filter)
+	log.Println(collection)
 	err := coll.FindOne(ctx, filter).Decode(result)
+	log.Println(result)
+	if err == mongo.ErrNoDocuments {
+		if resultPtr, ok := result.(*interface{}); ok {
+			*resultPtr = nil
+		}
+		return nil
+	}
 	return err
 
 }
