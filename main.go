@@ -9,6 +9,7 @@ import (
 	"github.com/syntaxsdev/mercury/internal/api"
 	"github.com/syntaxsdev/mercury/internal/repositories"
 	"github.com/syntaxsdev/mercury/internal/services"
+	"github.com/syntaxsdev/mercury/internal/services/monitoring"
 )
 
 func main() {
@@ -20,6 +21,7 @@ func main() {
 	dbUser := os.Getenv("DB_USER")
 	dbPass := os.Getenv("DB_PASSWORD")
 	dbPort := os.Getenv("DB_PORT")
+	mercuryPort := os.Getenv("MERCURY_APP_PORT")
 
 	// Set defaults
 	if dbHost == "" {
@@ -47,6 +49,11 @@ func main() {
 		log.Printf("INFO: No `DB_USER` set. Defaulting to %s\n", dbUser)
 	}
 
+	if mercuryPort == "" {
+		mercuryPort = "8080"
+		log.Printf("INFO: No `MERCURY_APP_PORT` set. Defaulting to %s\n", mercuryPort)
+	}
+
 	// Create MongoDB client
 	connString := fmt.Sprintf("mongodb://%s:%s@%s:%s", dbUser, dbPass, dbHost, dbPort)
 	log.Println(connString)
@@ -57,11 +64,15 @@ func main() {
 	// Create the Factory and pass it into our Routes
 	factory := services.Factory{MongoService: &ms}
 
+	// Create Monitoring Services
+	monitor := monitoring.NewMonitor(factory.MongoService, nil)
+	go monitor.Start()
+
 	// Start Routes
 	router := api.InitRoutes(&factory)
 
-	log.Printf("INFO: Starting Server... Listening on localhost:%s\n", dbPort)
-	if err := http.ListenAndServe(":8080", router); err != nil {
+	log.Printf("INFO: Starting Server... Listening on http://localhost:%s\n", mercuryPort)
+	if err := http.ListenAndServe(fmt.Sprintf(":%s", mercuryPort), router); err != nil {
 		log.Fatalf("Serve failed to start: %v", err)
 	}
 }

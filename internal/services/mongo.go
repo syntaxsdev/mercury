@@ -2,7 +2,6 @@ package services
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
@@ -30,10 +29,8 @@ func (s *MongoService) First(collection string, filter interface{}, result inter
 	coll := s.Client.Database(s.DatabaseName).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
-	log.Println(filter)
-	log.Println(collection)
+
 	err := coll.FindOne(ctx, filter).Decode(result)
-	log.Println(result)
 	if err == mongo.ErrNoDocuments {
 		if resultPtr, ok := result.(*interface{}); ok {
 			*resultPtr = nil
@@ -44,7 +41,7 @@ func (s *MongoService) First(collection string, filter interface{}, result inter
 
 }
 
-func (s *MongoService) All(collection string, filter interface{}, result *[]interface{}) error {
+func (s *MongoService) All(collection string, filter interface{}, result interface{}) error {
 	coll := s.Client.Database(s.DatabaseName).Collection(collection)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
@@ -55,18 +52,10 @@ func (s *MongoService) All(collection string, filter interface{}, result *[]inte
 	}
 	defer cursor.Close(ctx)
 
-	for cursor.Next(ctx) {
-		var doc interface{}
-		if err := cursor.Decode(&doc); err != nil {
-			return err
-		}
-		*result = append(*result, doc)
-	}
-
-	if err := cursor.Err(); err != nil {
+	// Use the cursor to decode directly into the provided result slice
+	if err := cursor.All(ctx, result); err != nil {
 		return err
-
 	}
-	return nil
 
+	return nil
 }
