@@ -52,16 +52,19 @@ func NewHealthChecker(client *http.Client) *HealthChecker {
 func (h *HealthChecker) Check(data *HealthData, s *models.Strategy) {
 	if s.Options.Active && s.HasHealthCheck() {
 		url, _ := s.HealthCheckUrl()
-		resp, err := h.client.Get(url)
-		if err != nil || (resp.StatusCode < 200 || resp.StatusCode > 203) {
+		resp, _ := h.client.Get(url)
+		if resp == nil || (resp.StatusCode < 200 || resp.StatusCode > 203) {
 			data.Update(false)
+			log.Printf("WARN: Health check error. Error count: %v", data.FailureCount)
 		} else {
 			data.Update(true)
 		}
 	}
+
 	// Max 5 unhealthy checks
 	if data.FailureCount == 5 {
 		s.Options.Active = false
+		log.Printf("INFO: %s has been switched off due to failed healthchecks.\n", s.Name)
 	}
 }
 
@@ -88,7 +91,13 @@ func (h *HealthChecker) BackgroundProcess(s *services.StrategyService) {
 			}
 			h.mu.Unlock()
 			val := h.healthData[strat.Name]
-			go h.Check(val, &strat)
+			// Only launch on active strategies
+			h.Check(val, &strat)
+
+			if !strat.Options.Active {
+				s.UpdateStrategy(&strat)
+
+			}
 		}
 		time.Sleep(time.Duration(defaultWait) * time.Second)
 	}

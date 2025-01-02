@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
@@ -22,6 +23,20 @@ func (s *MongoService) Insert(collection string, item interface{}) (interface{},
 		return nil, err
 	}
 	return result.InsertedID, nil
+
+}
+
+func (s *MongoService) Update(collection string, filter map[string]any, item map[string]interface{}) (interface{}, error) {
+	coll := s.Client.Database(s.DatabaseName).Collection(collection)
+	bsonFilter := bson.M(filter)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := coll.UpdateOne(ctx, bsonFilter, item)
+	if err != nil {
+		return nil, err
+	}
+	return result.UpsertedID, nil
 
 }
 
