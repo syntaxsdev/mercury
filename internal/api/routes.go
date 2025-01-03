@@ -13,5 +13,9 @@ func InitRoutes(factory *services.Factory) http.Handler {
 	r.Route("/strategy", func(r chi.Router) {
 		StrategyRoutes(r, factory)
 	})
+
+	r.Route("/logs", func(r chi.Router) {
+		LogRoutes(r, factory)
+	})
 	return r
 }

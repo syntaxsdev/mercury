@@ -11,7 +11,7 @@ import (
 
 // Get All Strategies
 func GetAllStrategies(w http.ResponseWriter, r *http.Request, f *services.Factory) {
-	var results []interface{}
+	var results []*interface{}
 	var payload map[string]interface{}
 	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
 		payload = nil
