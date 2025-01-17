@@ -71,7 +71,7 @@ func main() {
 	// Start Routes
 	router := api.InitRoutes(&factory)
 
-	log.Printf("INFO: Starting Server... Listening on http://localhost:%s\n", mercuryPort)
+	log.Printf("INFO: Starting Server... \nListening on http://localhost:%s\n", mercuryPort)
 	if err := http.ListenAndServe(fmt.Sprintf(":%s", mercuryPort), router); err != nil {
 		log.Fatalf("Serve failed to start: %v", err)
 	}

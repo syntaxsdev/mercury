@@ -33,7 +33,7 @@ func GetLog(w http.ResponseWriter, r *http.Request, f *services.Factory, n strin
 	WriteHttp(w, http.StatusOK, "Successfully fetched all logs", logs)
 }
 
-// Create a new log
+// Creates a new log
 func NewLog(w http.ResponseWriter, r *http.Request, f *services.Factory) {
 	var newLog models.Log
 	if err := json.NewDecoder(r.Body).Decode(&newLog); err != nil {
