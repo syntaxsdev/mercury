@@ -26,6 +26,34 @@ func (s *MongoService) Insert(collection string, item interface{}) (interface{},
 
 }
 
+// Delete one document from a collection
+func (s *MongoService) Delete(collection string, filter map[string]any) (bool, error) {
+	coll := s.Client.Database(s.DatabaseName).Collection(collection)
+	bsonFilter := bson.M(filter)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := coll.DeleteOne(ctx, bsonFilter)
+	if err != nil {
+		return false, err
+	}
+	return result.Acknowledged, nil
+}
+
+// Delete all documents from collections
+func (s *MongoService) DeleteAll(collection string, filter map[string]any) (bool, error) {
+	coll := s.Client.Database(s.DatabaseName).Collection(collection)
+	bsonFilter := bson.M(filter)
+	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+	defer cancel()
+
+	result, err := coll.DeleteMany(ctx, bsonFilter)
+	if err != nil {
+		return false, err
+	}
+	return result.Acknowledged, nil
+}
+
 func (s *MongoService) Update(collection string, filter map[string]any, item map[string]interface{}) (interface{}, error) {
 	coll := s.Client.Database(s.DatabaseName).Collection(collection)
 	bsonFilter := bson.M(filter)

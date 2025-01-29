@@ -33,6 +33,17 @@ func GetLog(w http.ResponseWriter, r *http.Request, f *services.Factory, n strin
 	WriteHttp(w, http.StatusOK, "Successfully fetched all logs", logs)
 }
 
+// Get log of a specific strategy
+func DeleteAllLogs(w http.ResponseWriter, r *http.Request, f *services.Factory, n string) {
+	filter := bson.M{"strategy": n}
+	_, err := f.MongoService.DeleteAll("logs", filter)
+	if err != nil {
+		WriteHttp(w, http.StatusInternalServerError, "Failed to retrieve logs.", err)
+		return
+	}
+	WriteHttp(w, http.StatusOK, "Successfully deleted all logs.", nil)
+}
+
 // Creates a new log
 func NewLog(w http.ResponseWriter, r *http.Request, f *services.Factory) {
 	var newLog models.Log

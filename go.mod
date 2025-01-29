@@ -5,7 +5,7 @@ go 1.22.7
 require (
 	github.com/go-chi/chi/v5 v5.2.0
 	github.com/redis/go-redis/v9 v9.7.0
-	go.mongodb.org/mongo-driver v1.17.1
+	go.mongodb.org/mongo-driver v1.17.2
 	go.mongodb.org/mongo-driver/v2 v2.0.0
 )
 

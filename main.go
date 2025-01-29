@@ -22,6 +22,7 @@ func main() {
 	dbPass := os.Getenv("DB_PASSWORD")
 	dbPort := os.Getenv("DB_PORT")
 	mercuryPort := os.Getenv("MERCURY_APP_PORT")
+	env := os.Getenv("APP_ENV")
 
 	// Set defaults
 	if dbHost == "" {
@@ -50,13 +51,20 @@ func main() {
 	}
 
 	if mercuryPort == "" {
-		mercuryPort = "8080"
+		mercuryPort = "80"
 		log.Printf("INFO: No `MERCURY_APP_PORT` set. Defaulting to %s\n", mercuryPort)
+	}
+
+	if env == "" {
+		env = "dev"
+		log.Printf("INFO: No `DEV` set. Defaulting to %s\n", env)
 	}
 
 	// Create MongoDB client
 	connString := fmt.Sprintf("mongodb://%s:%s@%s:%s", dbUser, dbPass, dbHost, dbPort)
-	log.Println(connString)
+	if env == "devD" {
+		log.Println(connString)
+	}
 	mongo, cleanup := repositories.NewMongoClient(connString)
 	defer cleanup()
 	ms := services.MongoService{Client: mongo, DatabaseName: dbName}

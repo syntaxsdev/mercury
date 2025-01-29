@@ -21,4 +21,9 @@ func LogRoutes(r chi.Router, factory *services.Factory) {
 	r.Post("/", func(w http.ResponseWriter, r *http.Request) {
 		handlers.NewLog(w, r, factory)
 	})
+
+	r.Delete("/{name}", func(w http.ResponseWriter, r *http.Request) {
+		name := chi.URLParam(r, "name")
+		handlers.DeleteAllLogs(w, r, factory, name)
+	})
 }
