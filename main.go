@@ -32,7 +32,7 @@ func main() {
 
 	if dbName == "" {
 		dbName = "mercury_db"
-		log.Printf("INFO: No `DN_NAME` set. Defaulting to %s\n", dbName)
+		log.Printf("INFO: No `DN_NAME` set.   Defaulting to %s\n", dbName)
 	}
 
 	if dbUser == "" {
