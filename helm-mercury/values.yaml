@@ -11,7 +11,7 @@ image:
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "1.0.4"
+  tag: "latest"
 
 # This is for the secrets for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []
@@ -100,7 +100,7 @@ readinessProbe:
 autoscaling:
   enabled: false
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 2
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 
@@ -133,28 +133,32 @@ mongodb:
   enabled: true
   auth:
     enabled: true
-    existingSecret: mongodb-credentials
+    # Set to true to create the secret automatically if it doesn't exist
+    createSecret: true
+    # These values will be used if createSecret is true and the secret doesn't exist
+    rootPassword: ""  # Leave empty to generate a random password
+    username: "root"
+    database: "admin"
+    # If you want to use an existing secret instead, set this
+    existingSecret: "mongodb-credentials"
+  primary:
+    persistence:
+      enabled: true
+      size: 8Gi
+      storageClass: ""
 
 # Mount Mongo vars to Go app
 env:
   - name: DB_USER
     value: root
-    # valueFrom:
-    #   secretKeyRef:
-    #     name: mongodb-credentials
-    #     key: username
   - name: DB_PASSWORD
     valueFrom:
       secretKeyRef:
         name: mongodb-credentials
-        key: rootPassword
+        key: mongodb-root-password
   - name: DB_NAME
     value: admin
-    # valueFrom:
-    #   secretKeyRef:
-    #     name: mongodb-credentials
-    #     key: database
   - name: DB_HOST
-    value: mercury-mongodb.mercury.svc.cluster.local
+    value: mercury-mongodb
   - name: APP_ENV
     value: devD
